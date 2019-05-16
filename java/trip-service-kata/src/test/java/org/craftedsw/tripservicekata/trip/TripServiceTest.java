@@ -25,18 +25,18 @@ public class TripServiceTest {
 
     @Test
     void userNotLoggedIn_throwsException() {
-        TripService tripService = new TestTripService(null);
+        TripService tripService = new TestTripService();
 
-        Executable executable = () -> tripService.getTripsByUser(new User());
+        Executable executable = () -> tripService.getTripsByUser(new User(), null);
 
         assertThrows(UserNotLoggedInException.class, executable);
     }
 
     @Test
     void notFriends_emptyList() {
-        TripService tripService = new TestTripService(loggedInUser);
+        TripService tripService = new TestTripService();
 
-        List<Trip> tripsByUser = tripService.getTripsByUser(new User());
+        List<Trip> tripsByUser = tripService.getTripsByUser(new User(), loggedInUser);
 
         assertThat(tripsByUser, is(empty()));
     }
@@ -45,9 +45,9 @@ public class TripServiceTest {
     void hasOtherFriends_emptyList() {
         User notFriend = new User();
         notFriend.addFriend(new User());
-        TripService tripService = new TestTripService(loggedInUser);
+        TripService tripService = new TestTripService();
 
-        List<Trip> tripsByUser = tripService.getTripsByUser(notFriend);
+        List<Trip> tripsByUser = tripService.getTripsByUser(notFriend, loggedInUser);
 
         assertThat(tripsByUser, is(empty()));
     }
@@ -58,25 +58,14 @@ public class TripServiceTest {
         friendOfLoggedInUser.addFriend(loggedInUser);
         Trip trip = new Trip();
         friendOfLoggedInUser.addTrip(trip);
-        TripService tripService = new TestTripService(loggedInUser);
+        TripService tripService = new TestTripService();
 
-        List<Trip> tripsByUser = tripService.getTripsByUser(friendOfLoggedInUser);
+        List<Trip> tripsByUser = tripService.getTripsByUser(friendOfLoggedInUser, loggedInUser);
 
         assertThat(tripsByUser, contains(trip));
     }
 
     public class TestTripService extends TripService {
-
-        private User loggedInUser;
-
-        public TestTripService(User loggedInUser) {
-            this.loggedInUser = loggedInUser;
-        }
-
-        @Override
-        protected User loggedInUser() {
-            return loggedInUser;
-        }
 
         @Override
         protected List<Trip> tripsOf(User user) {
