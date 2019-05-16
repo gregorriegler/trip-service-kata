@@ -58,7 +58,6 @@ public class TripServiceTest {
         friendOfLoggedInUser.addFriend(loggedInUser);
         Trip trip = new Trip();
         friendOfLoggedInUser.addTrip(trip);
-
         TripService tripService = new TestTripService(loggedInUser);
 
         List<Trip> tripsByUser = tripService.getTripsByUser(friendOfLoggedInUser);
@@ -80,7 +79,7 @@ public class TripServiceTest {
         }
 
         @Override
-        protected List<Trip> tripsByUser(User user) {
+        protected List<Trip> tripsOf(User user) {
             return user.trips();
         }
     }
