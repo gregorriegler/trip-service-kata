@@ -9,7 +9,15 @@ public class User {
 
 	private List<Trip> trips = new ArrayList<Trip>();
 	private List<User> friends = new ArrayList<User>();
-	
+
+	public User() {
+	}
+
+	public User(List<User> friends, List<Trip> trips) {
+		this.trips = trips;
+		this.friends = friends;
+	}
+
 	public List<User> getFriends() {
 		return friends;
 	}

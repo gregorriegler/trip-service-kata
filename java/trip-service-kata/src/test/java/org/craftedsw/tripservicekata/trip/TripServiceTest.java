@@ -6,8 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import java.util.Collections;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -16,17 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TripServiceTest {
 
-    private User loggedInUser;
-
-    @BeforeEach
-    void setUp() {
-        loggedInUser = new User();
-    }
-
     @Test
     void userNotLoggedIn_throwsException() {
-        TripService tripService = new TestTripService();
-
         Executable executable = () -> tripService.getTripsByUser(new User(), null);
 
         assertThrows(UserNotLoggedInException.class, executable);
@@ -34,8 +27,6 @@ public class TripServiceTest {
 
     @Test
     void notFriends_emptyList() {
-        TripService tripService = new TestTripService();
-
         List<Trip> tripsByUser = tripService.getTripsByUser(new User(), loggedInUser);
 
         assertThat(tripsByUser, is(empty()));
@@ -43,9 +34,7 @@ public class TripServiceTest {
 
     @Test
     void hasOtherFriends_emptyList() {
-        User notFriend = new User();
-        notFriend.addFriend(new User());
-        TripService tripService = new TestTripService();
+        User notFriend = new User(asList(new User()), Collections.emptyList());
 
         List<Trip> tripsByUser = tripService.getTripsByUser(notFriend, loggedInUser);
 
@@ -54,15 +43,22 @@ public class TripServiceTest {
 
     @Test
     void returnsTripOfFriend() {
-        User friendOfLoggedInUser = new User();
-        friendOfLoggedInUser.addFriend(loggedInUser);
-        Trip trip = new Trip();
-        friendOfLoggedInUser.addTrip(trip);
-        TripService tripService = new TestTripService();
+        User friendOfLoggedInUser = new User(asList(loggedInUser), asList(tripOfFriend));
 
         List<Trip> tripsByUser = tripService.getTripsByUser(friendOfLoggedInUser, loggedInUser);
 
-        assertThat(tripsByUser, contains(trip));
+        assertThat(tripsByUser, contains(tripOfFriend));
+    }
+
+    private User loggedInUser;
+    private Trip tripOfFriend;
+    private TripService tripService;
+
+    @BeforeEach
+    void setUp() {
+        loggedInUser = new User();
+        tripOfFriend = new Trip();
+        tripService = new TestTripService();
     }
 
     public class TestTripService extends TripService {
