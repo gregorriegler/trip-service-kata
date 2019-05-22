@@ -20,14 +20,14 @@ public class TripServiceTest {
 
     @Test
     void userNotLoggedIn_throwsException() {
-        Executable executable = () -> tripService.getTripsByUser(new User(), null);
+        Executable executable = () -> tripService.getTripsByFriend(new User(), null);
 
         assertThrows(UserNotLoggedInException.class, executable);
     }
 
     @Test
     void notFriends_emptyList() {
-        List<Trip> tripsByUser = tripService.getTripsByUser(new User(), loggedInUser);
+        List<Trip> tripsByUser = tripService.getTripsByFriend(new User(), loggedInUser);
 
         assertThat(tripsByUser, is(empty()));
     }
@@ -36,7 +36,7 @@ public class TripServiceTest {
     void hasOtherFriends_emptyList() {
         User notFriend = new User(asList(new User()), Collections.emptyList());
 
-        List<Trip> tripsByUser = tripService.getTripsByUser(notFriend, loggedInUser);
+        List<Trip> tripsByUser = tripService.getTripsByFriend(notFriend, loggedInUser);
 
         assertThat(tripsByUser, is(empty()));
     }
@@ -45,28 +45,19 @@ public class TripServiceTest {
     void returnsTripOfFriend() {
         User friendOfLoggedInUser = new User(asList(loggedInUser), asList(tripOfFriend));
 
-        List<Trip> tripsByUser = tripService.getTripsByUser(friendOfLoggedInUser, loggedInUser);
+        List<Trip> tripsByUser = tripService.getTripsByFriend(friendOfLoggedInUser, loggedInUser);
 
         assertThat(tripsByUser, contains(tripOfFriend));
     }
 
-    private User loggedInUser;
-    private Trip tripOfFriend;
+    private User loggedInUser = new User();
+    private Trip tripOfFriend = new Trip();
+    private TripDAO tripDAO = new TripDAO();
     private TripService tripService;
 
     @BeforeEach
     void setUp() {
-        loggedInUser = new User();
-        tripOfFriend = new Trip();
-        tripService = new TestTripService();
-    }
-
-    public class TestTripService extends TripService {
-
-        @Override
-        protected List<Trip> tripsOf(User user) {
-            return user.trips();
-        }
+        tripService = new TripService(tripDAO);
     }
 
 }
